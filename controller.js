@@ -55,7 +55,7 @@ const searchImage = async (req, res) => {
          perPage: 2,
       });
 
-      console.log(result.response);
+      // console.log(result.response);
 
       res.status(200).json({
          message: "Searched Photos",
