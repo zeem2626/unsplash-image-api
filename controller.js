@@ -15,6 +15,7 @@ const signin = async (req, res, next) => {
 
       res.status(200).json({ message: "User created", data: user });
    } catch (error) {
+      res.status(400).json({ message: error.message });
       next(error);
    }
 };
@@ -36,6 +37,7 @@ const verifyLogin = async (req, res, next) => {
       req.user = user;
       next();
    } catch (error) {
+      res.status(400).json({ message: error.message });
       next(error);
    }
 };
@@ -53,15 +55,14 @@ const searchImage = async (req, res) => {
          perPage: 2,
       });
 
-
       console.log(result.response);
 
       res.status(200).json({
          message: "Searched Photos",
          data: result.response.results[0],
       });
-
    } catch (error) {
+      res.status(400).json({ message: error.message });
       next(error);
    }
 };
