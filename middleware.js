@@ -18,19 +18,20 @@ const accessGrant = async (rateLimiterId, rateLimit) => {
 
       //  Rate Limit Data available
       const timeDifference = (Date.now() - rateLimitUserData.lastFilled) / 1000;
-      rateLimitUserData.lastFilled = Date.now();
 
       //  New Session Fill Maximum Tokens
       if (timeDifference > rateLimit.timeInterval) {
          rateLimitUserData.tokens = rateLimit.maxRequest - 1;
 
+         rateLimitUserData.lastFilled = Date.now();
          await rateLimitUserData.save();
          return true;
       }
       //  Old Session But Tokens Available
-      if (rateLimitUserData.tokens > 0) {
+      else if (rateLimitUserData.tokens > 0) {
          rateLimitUserData.tokens -= 1;
 
+         rateLimitUserData.lastFilled = Date.now();
          await rateLimitUserData.save();
          return true;
       }
