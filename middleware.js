@@ -74,9 +74,25 @@ const rateLimiter = async (req, res, next) => {
       if (userAccess && deviceAccess) {
          next();
       } else {
+         // Problem Fix
+         let userLimitData, deviceLimitData;
+         if (userAccess) {
+            userLimitData = await RateLimiter.findOneAndUpdate(
+               { username },
+               { $inc: { tokens: 1 } },
+               { new: true }
+            );
+         }
+         if (deviceAccess) {
+            deviceLimitData = await RateLimiter.findOneAndUpdate(
+               { ipAddress },
+               { $inc: { tokens: 1 } },
+               { new: true }
+            );
+         }
+
          res.status(429).json({
             message: "Too many request",
-            // data: rateLimitUserData,
          });
       }
    } catch (error) {
