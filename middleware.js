@@ -1,45 +1,43 @@
 import { RateLimiter } from "./model.rateLimiter.js";
 import ip from "ip";
 
-const accessGrant = async (rateLimiterId, rateLimit) => {
+const accessGrant = async (rateLimitId, rateLimit) => {
    try {
       // Find User Rate Limit Data
-      const rateLimitUserData = await RateLimiter.findOne({
-         rateLimiterId,
+      const rateLimitData = await RateLimiter.findOne({
+         rateLimitId,
       });
       //  Rate Limit Data not available
-      if (!rateLimitUserData) {
+      if (!rateLimitData) {
          const newUser = await RateLimiter.create({
-            rateLimiterId,
-            tokens: rateLimit.maxRequest,
+            rateLimitId,
+            tokens: rateLimit.maxRequest - 1,
          });
-         return true;
+         return { access: true, rateLimitData: newUser };
       }
 
       //  Rate Limit Data available
-      const timeDifference = (Date.now() - rateLimitUserData.lastFilled) / 1000;
+      const timeDifference = (Date.now() - rateLimitData.lastFilled) / 1000;
 
       //  New Session Fill Maximum Tokens
       if (timeDifference > rateLimit.timeInterval) {
-         rateLimitUserData.tokens = rateLimit.maxRequest - 1;
+         rateLimitData.tokens = rateLimit.maxRequest - 1;
+         rateLimitData.lastFilled = Date.now();
 
-         rateLimitUserData.lastFilled = Date.now();
-         await rateLimitUserData.save();
-         return true;
+         return { access: true, rateLimitData };
       }
       //  Old Session But Tokens Available
-      else if (rateLimitUserData.tokens > 0) {
-         rateLimitUserData.tokens -= 1;
+      else if (rateLimitData.tokens > 0) {
+         rateLimitData.tokens -= 1;
+         rateLimitData.lastFilled = Date.now();
 
-         rateLimitUserData.lastFilled = Date.now();
-         await rateLimitUserData.save();
-         return true;
+         return { access: true, rateLimitData };
       }
       // Niether New Session Nor Enough Tokens
       //  Access Denied
-      return false;
+      return { access: false, rateLimitData };
    } catch (error) {
-      throw new Error("Something went wrong");
+      throw new Error(error);
    }
 };
 
@@ -58,41 +56,46 @@ const rateLimiter = async (req, res, next) => {
       const username = req.user?.username;
       const ipAddress = ip.address();
 
-      let userAccess, deviceAccess;
+      let userAccess = { access: "pass" },
+         deviceAccess;
       // If User Not Loged In
-      if (!username) {
-         userAccess = true;
-      }
-      // User Loged In
-      else {
+      if (username) {
          userAccess = await accessGrant(username, rateLimitUser);
       }
 
       deviceAccess = await accessGrant(ipAddress, rateLimitDevice);
 
       // Both User And Device Should Have Access (Token)
-      if (userAccess && deviceAccess) {
-         next();
-      } else {
-         // Problem Fix
-         let userLimitData, deviceLimitData;
-         if (userAccess) {
-            userLimitData = await RateLimiter.findOneAndUpdate(
-               { username },
-               { $inc: { tokens: 1 } },
-               { new: true }
-            );
-         }
-         if (deviceAccess) {
-            deviceLimitData = await RateLimiter.findOneAndUpdate(
-               { ipAddress },
-               { $inc: { tokens: 1 } },
-               { new: true }
-            );
+      // Proceed Request
+      if (userAccess.access && deviceAccess.access) {
+         if (userAccess.access != "pass") {
+            await userAccess.rateLimitData.save();
          }
 
+         await deviceAccess.rateLimitData.save();
+         next();
+      }
+      // Reject Request
+      else {
+         let userTimeLeft = Math.ceil(
+            rateLimitUser.timeInterval -
+               (Date.now() - userAccess?.rateLimitData?.lastFilled) / 1000
+         );
+
+         userTimeLeft = !userTimeLeft || userTimeLeft >= 60 ? 0 : userTimeLeft;
+
+         let deviceTimeLeft = Math.ceil(
+            rateLimitDevice.timeInterval -
+               (Date.now() - deviceAccess.rateLimitData?.lastFilled) / 1000
+         );
+
+         deviceTimeLeft = deviceTimeLeft >= 60 ? 0 : deviceTimeLeft;
          res.status(429).json({
             message: "Too many request",
+            data: {
+               userTimeLeft,
+               deviceTimeLeft,
+            },
          });
       }
    } catch (error) {

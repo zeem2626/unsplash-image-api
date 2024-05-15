@@ -2,7 +2,7 @@ import mongoose from "mongoose";
 
 const rateLimiterSchema = new mongoose.Schema(
    {
-      rateLimiterId: {
+      rateLimitId: {
          type: String,
          required: true,
          unique: true,

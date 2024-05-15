@@ -14,6 +14,7 @@ router.get("/login/:username/:password", verifyLogin, (req, res)=>{
 
 
 // Rate Limited Routes
+// router.get("/login/:username/:password/photos/:q", verifyLogin, searchImage)
 router.get("/login/:username/:password/photos/:q", verifyLogin, rateLimiter, searchImage)
 
 router.get("/photos/:q", rateLimiter, searchImage)
