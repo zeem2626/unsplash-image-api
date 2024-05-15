@@ -1,5 +1,4 @@
 import { RateLimiter } from "./model.rateLimiter.js";
-import ip from "ip";
 
 const accessGrant = async (rateLimitId, rateLimit) => {
    try {
@@ -55,18 +54,16 @@ const rateLimitDevice = {
 const rateLimiter = async (req, res, next) => {
    try {
       const username = req.user?.username;
-      const ipAddress = req.clientIp;
+      const ipAddress = req.headers["x-forwarded-for"] || req.connection.remoteAddress;
+      const ip = ipAddress.split(",")[0]
 
-      const IP1 =
-         req.headers["x-forwarded-for"] || req.connection.remoteAddress;
-      const IP2 = req.clientIp;
-      const IP3 = ip.address();
-      const IP4 = req.ip;
+      // const IP1 =
+      //    req.headers["x-forwarded-for"] || req.connection.remoteAddress;
+      // const IP2 = req.clientIp;
 
-      console.log("IP 1: ", IP1.split(",")[0]);
-      console.log("IP 2: ", IP2);
-      console.log("IP 3: ", IP3);
-      console.log("IP 4: ", IP4);
+      // console.log("IP 1: ", IP1.split(",")[0]);
+      // console.log("IP 2: ", IP2);
+      console.log("IP : ", ip);
 
       let userAccess = { access: "pass" },
          deviceAccess;
@@ -75,7 +72,7 @@ const rateLimiter = async (req, res, next) => {
          userAccess = await accessGrant(username, rateLimitUser);
       }
 
-      deviceAccess = await accessGrant(ipAddress, rateLimitDevice);
+      deviceAccess = await accessGrant(ip, rateLimitDevice);
 
       // Both User And Device Should Have Access (Token)
       // Proceed Request

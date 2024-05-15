@@ -1,15 +1,14 @@
 import express from "express";
 import dotenv from "dotenv";
-import requestIp from "request-ip"
 
 import router from "./routes.js";
+// import requestIp from "request-ip"
 
 dotenv.config({ path: "./.env" });
 
 const app = express();
 
-// app.set('trust proxy', 1);
-app.use(requestIp.mw());
+// app.use(requestIp.mw());
 
 app.use("/api", router)
 
