@@ -4,7 +4,7 @@ import ip from "ip";
 const accessGrant = async (rateLimitId, rateLimit) => {
    try {
       // Find User Rate Limit Data
-      console.log("LIMIT ID: ", rateLimitId);
+      // console.log("LIMIT ID: ", rateLimitId);
       const rateLimitData = await RateLimiter.findOne({
          rateLimitId,
       });
@@ -59,6 +59,8 @@ const rateLimiter = async (req, res, next) => {
       // const ipAddress = ip.address();
 
       // console.log("USER: ", username);
+      const IP = req.headers["x-forwarded-for"] || req.connection.remoteAddress;
+      console.log("IP Address:", IP);
       console.log("REQ IP: ", req.ip);
       // console.log("IP: ", ipAddress);
 

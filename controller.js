@@ -62,6 +62,8 @@ const searchImage = async (req, res, next) => {
       //    data: result.response.results[0],
       // });
 
+      // console.log("IP: ", req.clientIp);
+
 
       res.status(200).json({
          message: "Searched Photos",
