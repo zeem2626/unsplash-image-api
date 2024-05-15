@@ -55,11 +55,12 @@ const rateLimitDevice = {
 const rateLimiter = async (req, res, next) => {
    try {
       const username = req.user?.username;
-      const ipAddress = ip.address();
+      const ipAddress = req.ip;
+      // const ipAddress = ip.address();
 
-      console.log("USER: ", username);
-      // console.log("REQ . IP: ", req.ip);
-      console.log("IP: ", ipAddress);
+      // console.log("USER: ", username);
+      console.log("REQ IP: ", req.ip);
+      // console.log("IP: ", ipAddress);
 
       let userAccess = { access: "pass" },
          deviceAccess;
