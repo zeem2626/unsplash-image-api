@@ -45,33 +45,30 @@ const verifyLogin = async (req, res, next) => {
 const searchImage = async (req, res, next) => {
    try {
       const searchKey = req.params.q;
-      // const unsplash = createApi({
-      //    accessKey: process.env.UNSPLASH_ACCESS_KEY,
-      // });
+      const unsplash = createApi({
+         accessKey: process.env.UNSPLASH_ACCESS_KEY,
+      });
 
-      // const result = await unsplash.search.getPhotos({
-      //    query: searchKey,
-      //    page: 1,
-      //    perPage: 2,
-      // });
+      const result = await unsplash.search.getPhotos({
+         query: searchKey,
+         page: 1,
+         perPage: 2,
+      });
 
-      // // console.log(result.response);
-
-      // res.status(200).json({
-      //    message: "Searched Photos",
-      //    data: result.response.results[0],
-      // });
-
-      // console.log("IP: ", req.clientIp);
-
+      // console.log(result.response);
 
       res.status(200).json({
          message: "Searched Photos",
-         q: searchKey
+         data: result.response.results[0],
       });
 
+      console.log("IP: ", req.clientIp);
 
-
+      // res.status(200).json({
+      //    message: "Searched Photos",
+      //    q: searchKey
+      // });
+      
    } catch (error) {
       res.status(400).json({ message: error.message });
       next(error);
