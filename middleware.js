@@ -3,7 +3,6 @@ import { RateLimiter } from "./model.rateLimiter.js";
 const accessGrant = async (rateLimitId, rateLimit) => {
    try {
       // Find User Rate Limit Data
-      // console.log("LIMIT ID: ", rateLimitId);
       const rateLimitData = await RateLimiter.findOne({
          rateLimitId,
       });
@@ -54,16 +53,12 @@ const rateLimitDevice = {
 const rateLimiter = async (req, res, next) => {
    try {
       const username = req.user?.username;
-      const ipAddress = req.headers["x-forwarded-for"] || req.connection.remoteAddress;
-      const ip = ipAddress.split(",")[0]
+      const ipAddress =
+         req.headers["x-forwarded-for"] || req.connection.remoteAddress;
+      const ip = ipAddress.split(",")[0];
 
-      // const IP1 =
-      //    req.headers["x-forwarded-for"] || req.connection.remoteAddress;
-      // const IP2 = req.clientIp;
-
-      // console.log("IP 1: ", IP1.split(",")[0]);
-      // console.log("IP 2: ", IP2);
-      console.log("IP : ", ip);
+      // const IP = req.clientIp;
+      console.log("IP :", ip);
 
       let userAccess = { access: "pass" },
          deviceAccess;
