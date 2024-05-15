@@ -56,23 +56,17 @@ const rateLimiter = async (req, res, next) => {
    try {
       const username = req.user?.username;
       const ipAddress = req.clientIp;
-      // const ipAddress = req.ip;
 
-      // console.log("USER: ", username);
       const IP1 =
          req.headers["x-forwarded-for"] || req.connection.remoteAddress;
       const IP2 = req.clientIp;
-      const IP3 = req.ip;
-      const IP4 = req.socket.remoteAddress;
-      const IP5 = req.connection.remoteAddress;
-      const IP6 = ip.address();
+      const IP3 = ip.address();
+      const IP4 = req.ip;
 
-      console.log("IP 1: ", IP1);
+      console.log("IP 1: ", IP1.split(",")[0]);
       console.log("IP 2: ", IP2);
       console.log("IP 3: ", IP3);
       console.log("IP 4: ", IP4);
-      console.log("IP 5: ", IP5);
-      console.log("IP 6: ", IP6);
 
       let userAccess = { access: "pass" },
          deviceAccess;
