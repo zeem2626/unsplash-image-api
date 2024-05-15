@@ -8,6 +8,7 @@ dotenv.config({ path: "./.env" });
 
 const app = express();
 
+app.set('trust proxy', 1); // Trust one proxy hop
 app.use(requestIp.mw());
 
 app.use("/api", router)
