@@ -96,9 +96,9 @@ const rateLimiter = async (req, res, next) => {
          deviceTimeLeft = deviceTimeLeft >= 60 ? 0 : deviceTimeLeft;
          res.status(429).json({
             message: "Too many request",
-            data: {
-               userTimeLeft,
-               deviceTimeLeft,
+            waitingTime: {
+               user: `${userTimeLeft} s`,
+               device: `${deviceTimeLeft} s`,
             },
          });
       }
